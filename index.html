@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Visual</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #input {
+            display: flex;
+        }
+        #input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #input button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #input button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Comunicación Cliente-Servidor</h1>
+    <div id="messages"></div>
+    <div id="input">
+        <input type="text" id="message" placeholder="Escribe tu mensaje">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+    <script>
+        const socket = io("http://localhost:5000");
+
+        // Muestra los mensajes en el div #messages
+        function addMessage(message) {
+            const messagesDiv = document.getElementById("messages");
+            const messageElement = document.createElement("div");
+            messageElement.textContent = message;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Conexión al servidor
+        socket.on("connect", () => {
+            addMessage("Conectado al servidor");
+        });
+
+        // Recibe mensajes del servidor
+        socket.on("respuesta", (data) => {
+            addMessage(`Servidor: ${data}`);
+        });
+
+        // Desconexión del servidor
+        socket.on("disconnect", () => {
+            addMessage("Desconectado del servidor");
+        });
+
+        // Envía un mensaje al servidor
+        function sendMessage() {
+            const input = document.getElementById("message");
+            const message = input.value;
+            if (message.trim() !== "") {
+                socket.emit("mensaje", message);
+                addMessage(`Tú: ${message}`);
+                input.value = "";
+            }
+        }
+    </script>
+</body>
+</html>
